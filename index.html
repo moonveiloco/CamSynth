@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CamSynth</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="canvas3d"></canvas>
+
+  <div id="overlay">
+    <h1>CamSynth</h1>
+    <p>waveterrain synthesis from your webcam</p>
+    <button id="start-btn">▶ START</button>
+  </div>
+
+  <div id="controls" class="hidden">
+    <div class="control">
+      <label>frequency</label>
+      <input type="range" id="freq" min="20" max="1000" value="110">
+      <span class="value" id="freq-val">110</span>
+    </div>
+    <div class="control">
+      <label>radius</label>
+      <input type="range" id="radius" min="0.1" max="6" step="0.05" value="2">
+      <span class="value" id="radius-val">2</span>
+    </div>
+    <div class="control">
+      <label>y scale</label>
+      <input type="range" id="yscale" min="0.1" max="5" step="0.05" value="1">
+      <span class="value" id="yscale-val">1</span>
+    </div>
+    <div class="control">
+      <label>fm int</label>
+      <input type="range" id="fmint" min="0" max="500" step="1" value="0">
+      <span class="value" id="fmint-val">0</span>
+    </div>
+    <div class="control">
+      <label>fm ratio</label>
+      <input type="range" id="fmratio" min="-1" max="6" step="0.05" value="2">
+      <span class="value" id="fmratio-val">2</span>
+    </div>
+    <div class="control">
+      <label>hue amount</label>
+      <input type="range" id="hueamt" min="0" max="1" step="0.02" value="0.3">
+      <span class="value" id="hueamt-val">0.3</span>
+    </div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
