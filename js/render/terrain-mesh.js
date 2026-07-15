@@ -1,3 +1,10 @@
+// ============================================================
+// terrain-mesh.js — Dynamic 3D terrain mesh
+// ============================================================
+// Builds a triangulated plane with cols×rows subdivisions,
+// deformable in real time to reflect grid heights.
+// Supports video texture from the webcam.
+
 import * as THREE from 'three'
 
 export class TerrainMesh {
@@ -7,11 +14,15 @@ export class TerrainMesh {
     this.span = span
 
     const geo = new THREE.BufferGeometry()
-    const verts = []
-    const idx = []
-    const uvs = []
+    const verts = []  // Vertex position array [x, y, z, x, y, z, ...]
+    const idx = []    // Triangle index array
+    const uvs = []    // UV texture coordinates
     const half = span / 2
 
+    // ============================================================
+    // Generates vertices in a cols×rows regular grid
+    // Evenly spaced within [-half, +half]
+    // ============================================================
     for (let iz = 0; iz < rows; iz++) {
       for (let ix = 0; ix < cols; ix++) {
         const x = (ix / (cols - 1)) * span - half
@@ -21,6 +32,13 @@ export class TerrainMesh {
       }
     }
 
+    // ============================================================
+    // Generates triangle indices (two triangles per cell)
+    //   a---b
+    //   |\  |
+    //   | \ |
+    //   c---d
+    // ============================================================
     for (let iz = 0; iz < rows - 1; iz++) {
       for (let ix = 0; ix < cols - 1; ix++) {
         const a = iz * cols + ix
@@ -36,6 +54,7 @@ export class TerrainMesh {
     geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
     geo.computeVertexNormals()
 
+    // Standard material with slightly rough surface
     this.material = new THREE.MeshStandardMaterial({
       color: 0xcccccc,
       side: THREE.DoubleSide,
@@ -45,23 +64,24 @@ export class TerrainMesh {
 
     this.mesh = new THREE.Mesh(geo, this.material)
     this.mesh.receiveShadow = true
-
     this.texture = null
   }
 
+  // Deforms the mesh vertically based on height values
   updateHeights(heights, cols, rows) {
     const pos = this.mesh.geometry.attributes.position
     const arr = pos.array
     for (let iz = 0; iz < rows; iz++) {
       for (let ix = 0; ix < cols; ix++) {
         const i = (iz * cols + ix) * 3
-        arr[i + 1] = heights[iz * cols + ix] * 3
+        arr[i + 1] = heights[iz * cols + ix] * 3  // ×3 amplification
       }
     }
     pos.needsUpdate = true
-    this.mesh.geometry.computeVertexNormals()
+    this.mesh.geometry.computeVertexNormals()  // Recalculates lighting
   }
 
+  // Applies webcam video as texture on the material
   updateTexture(video) {
     if (!this.texture) {
       this.texture = new THREE.VideoTexture(video)
@@ -72,7 +92,7 @@ export class TerrainMesh {
       this.texture.repeat.set(1, 1)
       this.texture.offset.set(0, 0)
       this.material.map = this.texture
-      this.material.needsUpdate = true
+      this.material.needsUpdate = true  // Forces material update
     }
   }
 }

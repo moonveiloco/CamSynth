@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!-- ============================================================
+  index.html — CamSynth entry point
+  ============================================================
+  Wave-terrain synthesizer powered by your webcam.
+  Loads Three.js via CDN with importmap and boots js/main.js.
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,14 +13,23 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Main canvas for Three.js 3D visualization -->
   <canvas id="canvas3d"></canvas>
 
+  <!-- ============================================================
+    Startup overlay — initial screen
+  ============================================================ -->
   <div id="overlay">
     <h1>CamSynth</h1>
     <p>waveterrain synthesis from your webcam</p>
     <button id="start-btn">▶ START</button>
   </div>
 
+  <!-- ============================================================
+    Controls bar — visible after START
+    ============================================================
+    Each control has: label, input range, and value span
+  ============================================================ -->
   <div id="controls" class="hidden">
     <div class="control">
       <label>frequency</label>
@@ -51,6 +66,7 @@
       <input type="range" id="updateint" min="0.01" max="1" step="0.01" value="1">
       <span class="value" id="updateint-val">1</span>
     </div>
+    <!-- Auto-rotate toggle for 3D camera -->
     <div class="control toggle-control">
       <label>auto rotate</label>
       <label class="toggle">
@@ -61,6 +77,7 @@
     </div>
   </div>
 
+  <!-- Importmap to load Three.js via CDN -->
   <script type="importmap">
   {
     "imports": {
@@ -69,6 +86,7 @@
     }
   }
   </script>
+  <!-- Main application module -->
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
