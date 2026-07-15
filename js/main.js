@@ -29,6 +29,8 @@ document.getElementById('start-btn').addEventListener('click', async () => {
     animate()
 
     bindControls()
+    bindAutoRotate()
+    bindUpdateInterval()
   } catch (err) {
     alert('Errore: ' + err.message)
     location.reload()
@@ -53,6 +55,28 @@ function animate() {
   requestAnimationFrame(animate)
   updateOrbit(grid ? grid.getGrid().heights : null)
   scene.render()
+}
+
+function bindUpdateInterval() {
+  const el = document.getElementById('updateint')
+  const valEl = document.getElementById('updateint-val')
+  el.addEventListener('input', () => {
+    const v = parseFloat(el.value)
+    CONFIG.updateInterval = v * 1000
+    if (valEl) valEl.textContent = v
+    clearInterval(captureTimer)
+    captureTimer = setInterval(doCapture, CONFIG.updateInterval)
+  })
+}
+
+function bindAutoRotate() {
+  const el = document.getElementById('autorotate')
+  const valEl = document.getElementById('autorotate-val')
+  el.addEventListener('change', () => {
+    const on = el.checked
+    scene.controls.autoRotate = on
+    if (valEl) valEl.textContent = on ? 'on' : 'off'
+  })
 }
 
 function bindControls() {

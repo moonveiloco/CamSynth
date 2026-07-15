@@ -1,6 +1,6 @@
 export const CONFIG = {
-  cols: 32,
-  rows: 24,
+  cols: 60,
+  rows: 60,
   span: 20,
   updateInterval: 1000,
   synth: {

@@ -21,8 +21,6 @@ export class Scene3D {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
     this.renderer.setSize(canvas.clientWidth, canvas.clientHeight)
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    this.renderer.shadowMap.enabled = true
-
     this.controls = new OrbitControls(this.camera, canvas)
     this.controls.target.set(0, 0, 0)
     this.controls.enableDamping = true
@@ -34,17 +32,13 @@ export class Scene3D {
     const ambient = new THREE.AmbientLight(0x404060, 0.5)
     this.scene.add(ambient)
 
-    const dir = new THREE.DirectionalLight(0xffffff, 1.2)
-    dir.position.set(5, 10, 5)
-    dir.castShadow = true
+    const dir = new THREE.DirectionalLight(0xffffff, 1.5)
+    dir.position.set(0, 15, 8)
     this.scene.add(dir)
 
     const fill = new THREE.DirectionalLight(0x4488ff, 0.3)
     fill.position.set(-5, 3, -5)
     this.scene.add(fill)
-
-    const grid = new THREE.GridHelper(22, 22, 0x333355, 0x222244)
-    this.scene.add(grid)
 
     this.terrain = new TerrainMesh(this.cols, this.rows, this.span)
     this.scene.add(this.terrain.mesh)

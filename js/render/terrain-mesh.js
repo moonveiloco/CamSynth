@@ -37,14 +37,13 @@ export class TerrainMesh {
     geo.computeVertexNormals()
 
     this.material = new THREE.MeshStandardMaterial({
-      color: 0x888888,
+      color: 0xcccccc,
       side: THREE.DoubleSide,
       roughness: 0.6,
       metalness: 0.1,
     })
 
     this.mesh = new THREE.Mesh(geo, this.material)
-    this.mesh.castShadow = true
     this.mesh.receiveShadow = true
 
     this.texture = null
