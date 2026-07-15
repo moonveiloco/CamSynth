@@ -30,7 +30,7 @@ export class Scene3D {
     this.camera = new THREE.PerspectiveCamera(
       45, canvas.clientWidth / canvas.clientHeight, 0.1, 100
     )
-    this.camera.position.set(CONFIG.view.distance * 0.7, CONFIG.view.distance * 0.5, CONFIG.view.distance * 0.7)
+    this.camera.position.set(0, 22, 21)
     this.camera.lookAt(0, 0, 0)
 
     // ============================================================
@@ -47,7 +47,7 @@ export class Scene3D {
     this.controls.target.set(0, 0, 0)
     this.controls.enableDamping = true
     this.controls.dampingFactor = 0.08
-    this.controls.autoRotate = true       // Auto-rotate initially on
+    this.controls.autoRotate = false      // Auto-rotate initially off
     this.controls.autoRotateSpeed = 1.0
     this.controls.update()
 

@@ -36,9 +36,27 @@
       <input type="range" id="freq" min="20" max="1000" value="110">
       <span class="value" id="freq-val">110</span>
     </div>
+    <!-- Mode toggle: webcam synth vs MIDI synth -->
+    <div class="control toggle-control">
+      <label>mode</label>
+      <label class="toggle">
+        <input type="checkbox" id="mode-toggle">
+        <span class="slider"></span>
+      </label>
+      <span class="value" id="mode-val">webcam</span>
+    </div>
+
+    <!-- MIDI device selector -->
+    <div class="control">
+      <label>midi</label>
+      <select id="midi-device" class="midi-select">
+        <option value="">keyboard</option>
+      </select>
+    </div>
+
     <div class="control">
       <label>radius</label>
-      <input type="range" id="radius" min="0.1" max="6" step="0.05" value="2">
+      <input type="range" id="radius" min="0.1" max="10" step="0.05" value="2">
       <span class="value" id="radius-val">2</span>
     </div>
     <div class="control">
@@ -63,35 +81,17 @@
     </div>
     <div class="control">
       <label>update s</label>
-      <input type="range" id="updateint" min="0.01" max="1" step="0.01" value="1">
-      <span class="value" id="updateint-val">1</span>
+      <input type="range" id="updateint" min="0.001" max="0.1" step="0.001" value="0.1">
+      <span class="value" id="updateint-val">0.1</span>
     </div>
-    <!-- Mode toggle: webcam synth vs MIDI synth -->
-    <div class="control toggle-control">
-      <label>mode</label>
-      <label class="toggle">
-        <input type="checkbox" id="mode-toggle">
-        <span class="slider"></span>
-      </label>
-      <span class="value" id="mode-val">webcam</span>
-    </div>
-
-    <!-- MIDI device selector -->
-    <div class="control">
-      <label>midi</label>
-      <select id="midi-device" class="midi-select">
-        <option value="">keyboard</option>
-      </select>
-    </div>
-
     <!-- Auto-rotate toggle for 3D camera -->
     <div class="control toggle-control">
       <label>auto rotate</label>
       <label class="toggle">
-        <input type="checkbox" id="autorotate" checked>
+        <input type="checkbox" id="autorotate">
         <span class="slider"></span>
       </label>
-      <span class="value" id="autorotate-val">on</span>
+      <span class="value" id="autorotate-val">off</span>
     </div>
   </div>
 

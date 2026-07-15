@@ -12,7 +12,7 @@ export const CONFIG = {
   // 3D terrain spatial extent (Three.js units)
   span: 20,
   // Grid update interval in milliseconds
-  updateInterval: 1000,
+  updateInterval: 100,
   // Maximum polyphonic voices
   voiceCount: 8,
 
@@ -32,18 +32,19 @@ export const CONFIG = {
 
   // Initial 3D camera settings
   view: {
-    angleY: 0.5,
-    angleX: 0.3,
-    distance: 16,
+    angleY: 0.1,
+    angleX: 0.2,
+    distance: 29,
   },
 }
 
 // Parameter limits for UI controls (min, max, step)
 export const LIMITS = {
   frequency: { min: 20, max: 2000, step: 1 },
-  radius: { min: 0.1, max: 6.0, step: 0.05 },
+  radius: { min: 0.1, max: 10.0, step: 0.05 },
   fmInt: { min: 0, max: 500, step: 1 },
   fmRatio: { min: -1, max: 6, step: 0.05 },
   yScale: { min: 0.1, max: 5.0, step: 0.05 },
   hueAmount: { min: 0, max: 1.0, step: 0.02 },
+  updateInterval: { min: 0.001, max: 0.1, step: 0.001 },
 }

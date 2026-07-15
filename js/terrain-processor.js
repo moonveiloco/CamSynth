@@ -136,7 +136,7 @@ class CamTerrainProcessor extends AudioWorkletProcessor {
   static get parameterDescriptors() {
     return [
       ['frequency', 110, 20, 2000],
-      ['radius', 2.0, 0.1, 8.0],
+      ['radius', 2.0, 0.1, 10.0],
       ['cx', 0, -100, 100],
       ['cz', 0, -100, 100],
       ['fmInt', 0, 0, 500],
