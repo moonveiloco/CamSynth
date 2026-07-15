@@ -66,6 +66,24 @@
       <input type="range" id="updateint" min="0.01" max="1" step="0.01" value="1">
       <span class="value" id="updateint-val">1</span>
     </div>
+    <!-- Mode toggle: webcam synth vs MIDI synth -->
+    <div class="control toggle-control">
+      <label>mode</label>
+      <label class="toggle">
+        <input type="checkbox" id="mode-toggle">
+        <span class="slider"></span>
+      </label>
+      <span class="value" id="mode-val">webcam</span>
+    </div>
+
+    <!-- MIDI device selector -->
+    <div class="control">
+      <label>midi</label>
+      <select id="midi-device" class="midi-select">
+        <option value="">keyboard</option>
+      </select>
+    </div>
+
     <!-- Auto-rotate toggle for 3D camera -->
     <div class="control toggle-control">
       <label>auto rotate</label>

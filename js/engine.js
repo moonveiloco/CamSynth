@@ -65,6 +65,31 @@ export class AudioEngine {
     })
   }
 
+  // Sends a note-on event to the audio processor
+  noteOn(note, velocity) {
+    if (!this.initialized) return
+    this.workletNode.port.postMessage({ type: 'noteon', note, velocity })
+  }
+
+  // Sends a note-off event to the audio processor
+  noteOff(note) {
+    if (!this.initialized) return
+    this.workletNode.port.postMessage({ type: 'noteoff', note })
+  }
+
+  // Kills all active voices
+  allNotesOff() {
+    if (!this.initialized) return
+    this.workletNode.port.postMessage({ type: 'allnotesoff' })
+  }
+
+  // Switches between webcam and midi mode
+  sendMode(mode) {
+    if (!this.initialized) return
+    this.workletNode.port.postMessage({ type: 'mode', mode })
+    CONFIG.synth.mode = mode
+  }
+
   // Computes the current carrier phase for synchronization
   // with the 3D orbit visualization
   getPhase() {

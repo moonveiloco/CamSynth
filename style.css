@@ -65,3 +65,21 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a12; f
 }
 .toggle input:checked + .slider { background: #4488ff; }
 .toggle input:checked + .slider::before { transform: translateX(16px); background: #fff; }
+
+/* ============================================================
+   MIDI device selector dropdown
+   ============================================================ */
+.midi-select {
+  background: #1a1a2e;
+  color: #aab;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+  max-width: 120px;
+}
+.midi-select option {
+  background: #1a1a2e;
+  color: #aab;
+}

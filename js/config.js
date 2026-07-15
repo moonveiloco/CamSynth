@@ -13,6 +13,8 @@ export const CONFIG = {
   span: 20,
   // Grid update interval in milliseconds
   updateInterval: 1000,
+  // Maximum polyphonic voices
+  voiceCount: 8,
 
   // Synthesizer parameters (default values)
   synth: {
@@ -25,6 +27,7 @@ export const CONFIG = {
     yScale: 1.0,      // Signal amplitude vertical scale
     hueAmount: 0.3,   // Hue influence on FM
     volume: 0.5,      // Master volume (0-1)
+    mode: 'webcam',   // 'webcam' | 'midi'
   },
 
   // Initial 3D camera settings
