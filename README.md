@@ -1,68 +1,68 @@
 # CamSynth
 
-WaveTerrain synthesis alimentato dalla webcam.
+Wave-terrain synthesis powered by your webcam.
 
-L'immagine della webcam viene downsamizzata a 32×24 pixel. La luminanza di ogni pixel definisce l'altezza del terreno 3D (`luma → height`), mentre la tinta (hue) modula l'intensità FM localmente — aree di colore diverso producono timbri diversi.
+The webcam image is downsampled to 60x60 pixels. The luminance of each pixel defines the height of a 3D terrain (`luma → height`), while the hue modulates FM intensity locally — different colored areas produce different timbres.
 
-## Come funziona
+## How it works
 
 ```
-Webcam → downsample 32×24 → luma → height grid (Float32Array)
-                           → hue  → modulazione FM locale
-                                       │
-               AudioWorklet campiona il grid lungo un'orbita circolare
-               con interpolazione bilineare → output audio
+Webcam → downsample 60x60 → luma → height grid (Float32Array)
+                          → hue  → local FM modulation
+                                      │
+              AudioWorklet samples the grid along a circular orbit
+              with bilinear interpolation → audio output
 ```
 
-- **Terrain**: una griglia 32×24 di altezze ricavate dalla luminanza della webcam
-- **Orbit**: un percorso circolare che campiona il terrain a ogni sample audio
-- **FM**: la tinta del punto campionato modula l'intensità FM per ricchezza armonica
-- **Visualizzazione**: mesh 3D texturizzata col frame webcam in Three.js
+- **Terrain**: a 60x60 height grid derived from webcam luminance
+- **Orbit**: a circular path that samples the terrain at every audio sample
+- **FM**: the hue at the sampled point modulates FM intensity for harmonic richness
+- **Visualization**: 3D mesh textured with the live webcam feed in Three.js
 
-## Uso
+## Usage
 
-1. Servire con un server HTTP locale (es. `python3 -m http.server` o `npx serve`)
-2. Aprire nel browser
-3. Cliccare **START** e concedere il permesso alla webcam
-4. Muovere i parametri nella barra in basso
+1. Serve with a local HTTP server (e.g. `python3 -m http.server` or `npx serve`)
+2. Open in your browser
+3. Click **START** and grant webcam permission
+4. Adjust the parameters in the bottom bar
 
-## Parametri
+## Parameters
 
-| Parametro | Default | Effetto |
-|-----------|---------|---------|
-| Frequency | 110 Hz | Frequenza base dell'oscillatore |
-| Radius | 2.0 | Raggio dell'orbita sul terrain |
-| Y Scale | 1.0 | Amplificazione verticale del terrain |
-| FM Int | 0 | Intensità della modulazione FM |
-| FM Ratio | 2.0 | Rapporto modulatore/portante |
-| Hue Amount | 0.3 | Quanto la tinta influenza la FM |
+| Parameter | Default | Effect |
+|-----------|---------|--------|
+| Frequency | 110 Hz | Base oscillator frequency |
+| Radius | 2.0 | Orbit radius on the terrain |
+| Y Scale | 1.0 | Terrain vertical amplification |
+| FM Int | 0 | FM modulation intensity |
+| FM Ratio | 2.0 | Modulator/carrier ratio |
+| Hue Amount | 0.3 | How much hue influences FM |
 
-## Controlli 3D
+## 3D Controls
 
-- **Trascinare** con il mouse per ruotare la visuale
-- **Scroll** per zoomare
-- L'auto-rotazione è attiva di default
+- **Drag** with the mouse to rotate the view
+- **Scroll** to zoom
+- Auto-rotation is enabled by default
 
-## Architettura
+## Architecture
 
 ```
 js/
   main.js               — entry point, lifecycle
-  config.js             — configurazione condivisa
-  color-to-depth.js     — mapping pixel → altezza/hue
-  grid.js               — cattura webcam + downsample
-  sampler.js            — interpolazione bilineare (condiviso)
+  config.js             — shared configuration
+  color-to-depth.js     — pixel → height/hue mapping
+  grid.js               — webcam capture + downsample
+  sampler.js            — bilinear interpolation (shared)
   engine.js             — AudioContext + signal chain
   terrain-processor.js  — AudioWorkletProcessor (DSP)
   render/
-    scene.js            — scena Three.js + orbit controls
-    terrain-mesh.js     — mesh dinamica del terrain
+    scene.js            — Three.js scene + orbit controls
+    terrain-mesh.js     — dynamic terrain mesh
 ```
 
-## Dipendenze
+## Dependencies
 
-- [Three.js](https://threejs.org/) (caricato via CDN)
+- [Three.js](https://threejs.org/) (loaded via CDN)
 - Web Audio API (AudioWorklet)
 - WebRTC (getUserMedia)
 
-Nessun build tool necessario — JavaScript modulare nativo.
+No build tools required — native modular JavaScript.
