@@ -189,11 +189,9 @@ function bindRecording() {
     if (engine.recording) {
       engine.stopRecording()
       btn.classList.remove('recording')
-      btn.textContent = '● REC'
     } else {
       engine.startRecording()
       btn.classList.add('recording')
-      btn.textContent = '⬛ STOP'
     }
   })
 }
