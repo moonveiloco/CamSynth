@@ -10,19 +10,21 @@ import { CONFIG } from './config.js'
 export class AudioEngine {
   constructor() {
     this.ctx = null
-    this.workletNode = null       // AudioWorkletNode for real-time DSP
-    this.masterGain = null        // Master volume node
+    this.workletNode = null
+    this.masterGain = null
+    this.destNode = null
+    this.mediaRecorder = null
+    this.recordingChunks = []
+    this.recording = false
     this.initialized = false
+    this.onRecordingComplete = null
   }
 
-  // Initializes the audio context, loads the worklet, and connects nodes
   async init() {
     this.ctx = new AudioContext()
 
-    // Loads the DSP processor into a separate audio thread
     await this.ctx.audioWorklet.addModule('js/terrain-processor.js')
 
-    // Creates the worklet node with initial parameter values
     const s = CONFIG.synth
     this.workletNode = new AudioWorkletNode(this.ctx, 'cam-terrain-processor', {
       parameterData: {
@@ -37,12 +39,14 @@ export class AudioEngine {
       },
     })
 
-    // Chain: worklet → masterGain → destination (speakers/headphones)
     this.masterGain = this.ctx.createGain()
     this.masterGain.gain.value = s.volume
 
+    this.destNode = this.ctx.createMediaStreamDestination()
+
     this.workletNode.connect(this.masterGain)
     this.masterGain.connect(this.ctx.destination)
+    this.masterGain.connect(this.destNode)
 
     this.initialized = true
   }
@@ -90,10 +94,106 @@ export class AudioEngine {
     CONFIG.synth.mode = mode
   }
 
-  // Computes the current carrier phase for synchronization
-  // with the 3D orbit visualization
   getPhase() {
     if (!this.initialized) return 0
     return performance.now() / 1000 * CONFIG.synth.frequency * Math.PI * 2
+  }
+
+  startRecording() {
+    if (!this.initialized || this.recording) return
+    this.recordingChunks = []
+
+    let mimeType
+    if (MediaRecorder.isTypeSupported('audio/mpeg')) {
+      mimeType = 'audio/mpeg'
+    } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+      mimeType = 'audio/webm;codecs=opus'
+    } else if (MediaRecorder.isTypeSupported('audio/webm')) {
+      mimeType = 'audio/webm'
+    } else {
+      mimeType = ''
+    }
+
+    const options = mimeType ? { mimeType } : {}
+    this.mediaRecorder = new MediaRecorder(this.destNode.stream, options)
+    this.mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) this.recordingChunks.push(e.data)
+    }
+    this.mediaRecorder.onerror = (e) => {
+      console.warn('MediaRecorder error:', e.error || e)
+    }
+    this.mediaRecorder.onstop = () => {
+      const blob = new Blob(this.recordingChunks, { type: this.mediaRecorder.mimeType })
+      this.recordingChunks = []
+      if (this.mediaRecorder.mimeType === 'audio/mpeg') {
+        this.recording = false
+        if (this.onRecordingComplete) this.onRecordingComplete(blob)
+      } else {
+        this._convertToMp3(blob)
+      }
+    }
+    this.mediaRecorder.start(1000)
+    this.recording = true
+  }
+
+  stopRecording() {
+    if (!this.initialized || !this.recording || !this.mediaRecorder) return
+    if (this.mediaRecorder.state === 'recording') {
+      try { this.mediaRecorder.stop() } catch (e) { console.warn('MediaRecorder stop error:', e) }
+    }
+  }
+
+  setBpm(bpm) {
+    CONFIG.bpm = bpm
+    if (!this.initialized) return
+    this.workletNode.port.postMessage({ type: 'bpm', bpm })
+  }
+
+  setClickEnabled(enabled) {
+    CONFIG.clickEnabled = enabled
+    if (!this.initialized) return
+    this.workletNode.port.postMessage({ type: 'click', enabled })
+  }
+
+  async _convertToMp3(blob) {
+    try {
+      if (typeof lamejs === 'undefined') {
+        throw new Error('lamejs not loaded')
+      }
+
+      const arrayBuffer = await blob.arrayBuffer()
+      const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer)
+
+      const channels = 1
+      const sampleRate = audioBuffer.sampleRate
+      const pcmData = audioBuffer.getChannelData(0)
+
+      const samples = new Int16Array(pcmData.length)
+      for (let i = 0; i < pcmData.length; i++) {
+        const s = Math.max(-1, Math.min(1, pcmData[i]))
+        samples[i] = s < 0 ? s * 0x8000 : s * 0x7FFF
+      }
+
+      const encoder = new lamejs.Mp3Encoder(channels, sampleRate, 128)
+      const mp3Data = []
+      const blockSize = 1152
+
+      for (let i = 0; i < samples.length; i += blockSize) {
+        const chunk = samples.subarray(i, i + blockSize)
+        const mp3Buf = encoder.encodeBuffer(chunk)
+        if (mp3Buf.length > 0) mp3Data.push(mp3Buf)
+      }
+
+      const mp3Buf = encoder.flush()
+      if (mp3Buf.length > 0) mp3Data.push(mp3Buf)
+
+      const mp3Blob = new Blob(mp3Data, { type: 'audio/mpeg' })
+      this.recording = false
+      if (this.onRecordingComplete) this.onRecordingComplete(mp3Blob)
+    } catch (err) {
+      console.warn('MP3 conversion failed, falling back to original format:', err)
+      this.recording = false
+      if (this.onRecordingComplete) this.onRecordingComplete(blob)
+    }
   }
 }

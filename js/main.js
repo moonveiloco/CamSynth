@@ -21,6 +21,7 @@ let captureTimer = null
 document.getElementById('start-btn').addEventListener('click', async () => {
   document.getElementById('overlay').classList.add('hidden')
   document.getElementById('controls').classList.remove('hidden')
+  document.getElementById('top-left').classList.remove('hidden')
 
   try {
     engine = new AudioEngine()
@@ -48,6 +49,9 @@ document.getElementById('start-btn').addEventListener('click', async () => {
     bindUpdateInterval()
     bindModeToggle()
     bindMidiDevice()
+    bindRecording()
+    bindBpm()
+    bindClick()
   } catch (err) {
     alert('Errore: ' + err.message)
     location.reload()
@@ -147,5 +151,64 @@ function bindMidiDevice() {
 
   select.addEventListener('change', () => {
     midi.selectDevice(select.value || null)
+  })
+}
+
+function downloadBlob(blob) {
+  if (blob.size === 0) {
+    console.warn('Empty blob, nothing to download')
+    return
+  }
+  const extMap = {
+    'audio/webm': 'webm',
+    'audio/webm;codecs=opus': 'webm',
+    'audio/mpeg': 'mp3',
+    'audio/mp4': 'm4a',
+    'audio/ogg': 'ogg',
+  }
+  const ext = extMap[blob.type] || 'webm'
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'camsynth-' + new Date().toISOString().replace(/[:.]/g, '-') + '.' + ext
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 10000)
+}
+
+function bindRecording() {
+  const btn = document.getElementById('rec-btn')
+  if (!window.MediaRecorder) {
+    btn.disabled = true
+    btn.title = 'Recording not supported in this browser'
+    return
+  }
+  engine.onRecordingComplete = downloadBlob
+  btn.addEventListener('click', () => {
+    if (engine.recording) {
+      engine.stopRecording()
+      btn.classList.remove('recording')
+      btn.textContent = '● REC'
+    } else {
+      engine.startRecording()
+      btn.classList.add('recording')
+      btn.textContent = '⬛ STOP'
+    }
+  })
+}
+
+function bindBpm() {
+  const input = document.getElementById('bpm-input')
+  input.addEventListener('input', () => {
+    const v = parseInt(input.value, 10)
+    if (v >= 20 && v <= 300) engine.setBpm(v)
+  })
+}
+
+function bindClick() {
+  const toggle = document.getElementById('click-toggle')
+  toggle.addEventListener('change', () => {
+    engine.setClickEnabled(toggle.checked)
   })
 }

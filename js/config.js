@@ -16,6 +16,9 @@ export const CONFIG = {
   // Maximum polyphonic voices
   voiceCount: 8,
 
+  bpm: 120,
+  clickEnabled: false,
+
   // Synthesizer parameters (default values)
   synth: {
     frequency: 110,   // Carrier oscillator frequency in Hz

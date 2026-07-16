@@ -53,6 +53,14 @@ class CamTerrainProcessor extends AudioWorkletProcessor {
 
     this.mode = 0
 
+    this.bpm = 120
+    this.clickEnabled = false
+    this._samplesPerBeat = Math.round(sampleRate * 60 / this.bpm)
+    this._beatCounter = 0
+    this._clickDuration = 0
+    this._clickAge = 0
+    this._maxClickSamples = Math.round(sampleRate * 0.005)
+
     this.pendingHeights = null
     this.pendingHues = null
     this.pendingCols = 32
@@ -90,6 +98,13 @@ class CamTerrainProcessor extends AudioWorkletProcessor {
       case 'mode':
         this.mode = e.data.mode === 'midi' ? 1 : 0
         if (this.mode === 0) this._allNotesOff()
+        break
+      case 'bpm':
+        this.bpm = e.data.bpm
+        this._samplesPerBeat = Math.round(sampleRate * 60 / this.bpm)
+        break
+      case 'click':
+        this.clickEnabled = e.data.enabled
         break
     }
   }
@@ -167,6 +182,10 @@ class CamTerrainProcessor extends AudioWorkletProcessor {
       this._processWebcam(n, left, right, parameters)
     } else {
       this._ProcessMidi(n, left, right, parameters)
+    }
+
+    if (this.clickEnabled) {
+      this._mixClick(n, left, right)
     }
 
     return true
@@ -280,6 +299,28 @@ class CamTerrainProcessor extends AudioWorkletProcessor {
       sample = Math.max(-1, Math.min(1, sample))
       left[i] = sample
       if (right) right[i] = sample
+    }
+  }
+
+  _mixClick(n, left, right) {
+    const sr = sampleRate
+    const twoPi = 2 * Math.PI
+    for (let i = 0; i < n; i++) {
+      this._beatCounter++
+      if (this._beatCounter >= this._samplesPerBeat) {
+        this._beatCounter = 0
+        this._clickDuration = this._maxClickSamples
+        this._clickAge = 0
+      }
+
+      if (this._clickDuration > 0) {
+        const env = 1.0 - this._clickDuration / this._maxClickSamples
+        const clickSample = Math.sin(twoPi * 1000 * (this._clickAge / sr)) * env * 0.3
+        left[i] += clickSample
+        if (right) right[i] += clickSample
+        this._clickDuration--
+        this._clickAge++
+      }
     }
   }
 }

@@ -26,9 +26,25 @@
   </div>
 
   <!-- ============================================================
+    Top-left controls — REC, BPM, Click
+  ============================================================ -->
+  <div id="top-left" class="hidden">
+    <button id="rec-btn">● REC</button>
+    <div class="tl-control">
+      <label>bpm</label>
+      <input type="number" id="bpm-input" min="20" max="300" value="120">
+    </div>
+    <div class="tl-control toggle-control">
+      <label>click</label>
+      <label class="toggle">
+        <input type="checkbox" id="click-toggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ============================================================
     Controls bar — visible after START
-    ============================================================
-    Each control has: label, input range, and value span
   ============================================================ -->
   <div id="controls" class="hidden">
     <div class="control">
@@ -94,6 +110,9 @@
       <span class="value" id="autorotate-val">off</span>
     </div>
   </div>
+
+  <!-- lamejs: pure-JS MP3 encoder -->
+  <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.all.js"></script>
 
   <!-- Importmap to load Three.js via CDN -->
   <script type="importmap">
