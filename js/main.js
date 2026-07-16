@@ -11,10 +11,12 @@ import { GridCapture } from './grid.js'
 import { AudioEngine } from './engine.js'
 import { MidiController } from './keyboard-midi.js'
 import { Scene3D } from './render/scene.js'
+import { Waveform2D } from './render/waveform-2d.js'
 
 let engine = null
 let grid = null
 let scene = null
+let waveform = null
 let midi = null
 let captureTimer = null
 
@@ -22,6 +24,7 @@ document.getElementById('start-btn').addEventListener('click', async () => {
   document.getElementById('overlay').classList.add('hidden')
   document.getElementById('controls').classList.remove('hidden')
   document.getElementById('top-left').classList.remove('hidden')
+  document.getElementById('waveform2d').classList.remove('hidden')
 
   try {
     engine = new AudioEngine()
@@ -33,6 +36,9 @@ document.getElementById('start-btn').addEventListener('click', async () => {
     const canvas = document.getElementById('canvas3d')
     scene = new Scene3D(canvas)
     scene.updateTexture(grid.video)
+
+    const wfCanvas = document.getElementById('waveform2d')
+    waveform = new Waveform2D(wfCanvas)
 
     midi = new MidiController()
     midi.onNoteOn = (note, velocity) => engine.noteOn(note, velocity)
@@ -52,6 +58,9 @@ document.getElementById('start-btn').addEventListener('click', async () => {
     bindRecording()
     bindBpm()
     bindClick()
+
+    const ro = new ResizeObserver(() => waveform.resize())
+    ro.observe(wfCanvas)
   } catch (err) {
     alert('Errore: ' + err.message)
     location.reload()
@@ -68,8 +77,31 @@ function doCapture() {
 
 function updateOrbit(heights) {
   const s = CONFIG.synth
+  const halfSpan = CONFIG.span / 2
+  const cols = CONFIG.cols
+  const rows = CONFIG.rows
+  const seg = 64
   const phase = engine.getPhase()
+
   scene.updateOrbit(s.cx, s.cz, s.radius, phase, heights)
+
+  const ringHeights = new Float32Array(seg)
+  for (let i = 0; i < seg; i++) {
+    const a = (i / seg) * Math.PI * 2
+    const ox = s.cx + s.radius * Math.cos(a)
+    const oz = s.cz + s.radius * Math.sin(a)
+    const gx = ((ox / halfSpan) + 1) * 0.5 * (cols - 1)
+    const gy = ((oz / halfSpan) + 1) * 0.5 * (rows - 1)
+    let h = 0
+    if (heights && gx >= 0 && gx < cols && gy >= 0 && gy < rows) {
+      const ix = Math.floor(gx)
+      const iy = Math.floor(gy)
+      h = heights[iy * cols + ix]
+    }
+    ringHeights[i] = h
+  }
+  const cursorIndex = Math.round((phase % (Math.PI * 2)) / (Math.PI * 2) * seg) % seg
+  if (waveform) waveform.update(ringHeights, cursorIndex)
 }
 
 function animate() {
